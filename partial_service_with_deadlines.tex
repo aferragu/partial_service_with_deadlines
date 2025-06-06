@@ -1,0 +1,163 @@
+\documentclass[aspectratio=169]{beamer}
+
+\usepackage[utf8]{inputenc}
+%\usepackage{emoji}
+
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage[T1]{fontenc}
+\usepackage{libertine}
+\usepackage{array}
+
+\usepackage{enumitem}
+\setitemize{label=\usebeamerfont*{itemize item}%
+  \usebeamercolor[fg]{itemize item}
+  \usebeamertemplate{itemize item},
+}
+\setbeamertemplate{itemize item}[square]
+\setbeamertemplate{itemize subitem}[circle]
+
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage{tikz}
+\usetikzlibrary{automata, arrows, positioning, calc, external, babel, backgrounds, matrix, shapes}
+\usepgfplotslibrary{fillbetween}
+
+
+% \tikzset{
+% 	invisible/.style={opacity=0},
+% 	visible on/.style={alt={#1{}{invisible}}},
+% 	alt/.code args={<#1>#2#3}{%
+% 		\alt<#1>{\pgfkeysalso{#2}}{\pgfkeysalso{#3}} % \pgfkeysalso doesn't change the path
+% 	},
+% }
+
+%\pgfplotsset{every axis/.append style={label style={font=\small},tick label style={font=\footnotesize} }}
+
+\newcommand{\graphheight}{7cm}
+\newcommand{\graphwidth}{11cm}
+
+\newcommand{\E}[1]{E\left[#1 \right]}
+\newcommand{\ind}[1]{\mathbf{1}_{#1}}
+
+%\newcommand{\P}[1]{E\left[#1\right]}
+
+% \definecolor{azulcito}{RGB}{20,70,140}
+\definecolor{azulcito}{RGB}{0,90,150}
+\definecolor{verdecito}{RGB}{90,150,0}
+\definecolor{rojito}{RGB}{150,0,90}
+\definecolor{violetita}{RGB}{150,20,150}
+
+
+\setbeamercolor*{structure}{fg=azulcito,bg=azulcito!20!white}
+\setbeamercolor*{alerted text}{fg=azulcito}
+
+  \setbeamercolor{block title}{fg=azulcito,bg=azulcito!20!white}
+  \setbeamercolor{block body}{fg=black,bg=azulcito!10!white}
+  
+\beamertemplatenavigationsymbolsempty
+
+\setbeamercolor*{author in head/foot}{fg=azulcito,bg=azulcito!15!white}
+\setbeamercolor*{title in head/foot}{fg=azulcito,bg=azulcito!15!white}
+\setbeamercolor*{date in head/foot}{fg=azulcito,bg=azulcito!15!white}
+
+% Pgfplots
+\pgfplotsset{width=\graphwidth, height = \graphheight, grid style = {dashed, gray}, every tick label/.append style = {font=\footnotesize}, compat=1.18, legend style={font=\footnotesize, draw=none, fill=none}, every axis/.append style={label style={font=\footnotesize}}}
+
+\tikzset{>=stealth}
+
+\newtheorem{proposition}{Proposition}
+
+\defbeamertemplate*{footline}{mitema}
+{
+  \leavevmode%
+  \hbox{%
+  \begin{beamercolorbox}[wd=.25\paperwidth,ht=2.25ex,dp=1ex,left]{author in head/foot}%
+    \usebeamerfont{author in head/foot}\hspace*{2ex}\insertshortauthor
+  \end{beamercolorbox}%
+  \begin{beamercolorbox}[wd=.5\paperwidth,ht=2.25ex,dp=1ex,center]{title in head/foot}%
+    \usebeamerfont{date in head/foot}\insertshortdate{}
+  \end{beamercolorbox}%
+  \begin{beamercolorbox}[wd=.25\paperwidth,ht=2.25ex,dp=1ex,right]{date in head/foot}%
+    \insertframenumber{}/\inserttotalframenumber\hspace*{2em} 
+  \end{beamercolorbox}}%
+ \vskip0pt%
+}
+
+
+\setbeamercolor{blocky}{fg=azulcito,bg=azulcito!15!white}
+\setbeamercolor{blocky2}{fg=black,bg=azulcito!10!white}
+
+\defbeamertemplate*{title page}{customized}[1][]
+{
+{\flushright
+  \begin{beamercolorbox}[wd=\paperwidth,sep=1em,right,rightskip=1.5em]{blocky}%
+    \usebeamerfont{title}{\huge \inserttitle}\par \bigskip
+
+    \usebeamerfont{subtitle}{\large \insertsubtitle}\par
+  \end{beamercolorbox}%
+  \vfill
+    \usebeamerfont{author}{\Large \insertauthor}\par \vspace{1em}
+      \usebeamerfont{institute}{\large \insertinstitute}\par
+  
+  
+  \vfill
+  \usebeamerfont{date}{\insertdate}\par
+  %\usebeamercolor[fg]{titlegraphic}\inserttitlegraphic
+  }
+}
+
+\usefonttheme[onlymath]{serif}
+
+\title{Last but not least...}
+\subtitle{Matching Earliest-Deadline-First performance through deadline-oblivious policies}
+
+\author[Andres Ferragut, Universidad ORT Uruguay]{Andres Ferragut}
+\institute{Universidad ORT Uruguay}
+\date[INRIA Paris Seminar -- Jun 2025]{INRIA Paris Seminar -- June 2025}
+
+\AtBeginSection[]
+{
+\begin{frame}{Outline}
+\tableofcontents[currentsection, 
+   hideallsubsections, 
+   sectionstyle=show/shaded,
+]
+\end{frame}
+}
+
+\newenvironment*{myitem}[1][1.5em]{\begin{itemize}\setlength{\itemsep}{#1}}{\end{itemize}}
+
+\begin{document}
+
+\frame[plain]{\titlepage}
+
+\begin{frame}{Outline}
+\tableofcontents
+\end{frame}
+
+\section{Main results}
+
+\section{Future work}
+
+\begin{frame}{Final remarks}
+	
+\end{frame}
+
+
+\begin{frame}[plain]
+	\vfill
+	{\Huge \alert{Merci beaucoup!}}
+	\vfill
+	Andres Ferragut
+
+	\smallskip
+
+	\href{mailto://ferragut@ort.edu.uy}{\alert{ferragut@ort.edu.uy}}
+	
+	\smallskip
+
+	\href{http://aferragu.github.io}{\alert{aferragu.github.io}}
+\end{frame}
+
+\end{document}
