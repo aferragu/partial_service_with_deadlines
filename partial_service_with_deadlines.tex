@@ -136,7 +136,142 @@
 \tableofcontents
 \end{frame}
 
-\section{Main results}
+\section{Motivation}
+
+\section{System model}
+
+\begin{frame}{Remaining service state descriptor}
+
+  \begin{tikzpicture}
+		
+	\draw [->] (-.2,0) -- (7,0);
+	\node [below right] at (7,0) {$\sigma$};
+	\draw [->] (0,-.2) -- (0,4);
+	\node [above left] at (0,4) {$\tau$};
+	
+	\node [below] at (3.5,-.1) {Remaining service};
+	\node [rotate=90, left, anchor=south] at (-.1,2) { Remaining time};
+	
+%	\draw [thick,gray,->] (4,2.3) -- ++(0,-.4);
+	\draw<1> [azulcito, fill=azulcito] (4,2.3) circle [radius=0.1];
+  \node<1> [azulcito] at (3.5,3.5) {New arrival at rate $\lambda dt g(\sigma,\tau)$};
+
+  \draw<2> [thick,gray,->] plot[smooth] coordinates {(4,2.3) (3.8,2.2) (3.5,1.8) (3,1.5)}; 
+  \draw<2> [gray, fill=gray, opacity=0.5] (4,2.3) circle [radius=0.1];
+  \draw<2> [teal, fill=teal] (3,1.5) circle [radius=0.1];
+  \draw<2> [teal, fill=teal,->] (3,1.5) -- (2.5,1.5) node[left]{$r(\sigma,\tau)$};
+  \draw<2> [teal, fill=teal,->] (3,1.5) -- (3,1) node[right]{$1$};
+  \node<2> [teal] at (3.5,3.5) {Moves along the field $\mathbf{r} = \begin{pmatrix}
+  -r(\sigma,\tau) \\ -1
+  \end{pmatrix}$};
+
+  \draw<3> [thick,gray,->] plot[smooth] coordinates {(4,2.3) (3.8,2.2) (3.5,1.8) (3,1.5) (2.5,1.2) (2,.8) (.5,0)}; 
+  \draw<3-4> [gray, fill=gray, opacity=0.5] (4,2.3) circle [radius=0.1];
+  \node<3>[purple, fill=purple, starburst, inner sep=1.5pt,/pgf/starburst point height=3] at (.5,0) {};
+  \node<3> [purple] at (3.5,3.5) {Leaves with some positive unfinished work};
+
+  \draw<4> [thick,gray,->] plot[smooth] coordinates {(4,2.3) (3.8,2.2) (3.5,1.8) (2,1.5) (1.5,.5) (.5,.3) (0,.3)}; 
+  \draw<4> [blue, fill=blue] (0,.3) circle [radius=0.1];
+  \node<4> [blue] at (3.5,3.5) {Or is fully served};
+
+\end{tikzpicture}
+
+\end{frame}
+
+\begin{frame}{Example}{Earliest-deadline-first}
+
+  \begin{tikzpicture}
+		
+	\draw [->] (-.2,0) -- (7,0);
+	\node [below right] at (7,0) {$\sigma$};
+	\draw [->] (0,-.2) -- (0,4);
+	\node [above left] at (0,4) {$\tau$};
+	
+	\node [below] at (3.5,-.1) {Remaining service};
+	\node [rotate=90, left, anchor=south] at (-.1,2) { Remaining time};
+	
+	\draw [thick,gray,->] (.5,.8) -- ++(-.3,-.3);
+	\draw [thick,gray,->] (.7,3.1) -- ++(0,-.4);
+	\draw [thick,gray,->] (1.2,1.5) -- ++(-.3,-.3);
+	\draw [thick,gray,->] (2,2.3) -- ++(0,-.4);
+	\draw [thick,gray,->] (2.5,1.3) -- ++(-.3,-.3);
+	\draw [thick,gray,->] (3,3.5) -- ++(0,-.4);
+	\draw [thick,gray,->] (4,2.3) -- ++(0,-.4);
+	\draw [thick,gray,->] (5,1.9) -- ++(0,-.4);
+	\draw [thick,gray,->] (6,3) -- ++(0,-.4);
+
+	\draw [teal, fill=teal] (.5,.8) circle [radius=0.1];
+	\draw [teal, fill=teal] (.7,3.1) circle [radius=0.1];
+	\draw [teal, fill=teal] (1.2,1.5) circle [radius=0.1];
+	\draw [teal, fill=teal]  (2,2.3) circle [radius=0.1];
+	\draw [teal, fill=teal] (2.5,1.3) circle [radius=0.1];
+	\draw [teal, fill=teal] (3,3.5) circle [radius=0.1];
+	\draw [teal, fill=teal] (4,2.3) circle [radius=0.1];
+	\draw [teal, fill=teal] (5,1.9) circle [radius=0.1];
+	\draw [blue, fill=blue] (6,3) circle [radius=0.1] node[above, yshift=3pt] {\small New arrival};
+
+	%reneging departure
+	%\draw [purple, fill=purple!20!white] (3,0) circle [radius=0.1] node[above, anchor=south west] {\small Reneging customer};
+	\node[purple, fill=purple, starburst, inner sep=1.5pt,/pgf/starburst point height=3] at (3,0) {};
+	\node[purple, anchor=south west] at (3,0){ \small Reneging customer};
+
+	\draw [gray, dotted, thick] (0,1.5) -- (6.8,1.5) node[black, right] {$\tau_\Phi$};
+
+\end{tikzpicture}
+
+\end{frame}
+
+\begin{frame}{Attained service state descriptor}
+
+\begin{tikzpicture}
+		
+	\draw [->] (-.2,0) -- (7,0);
+	\node [below right] at (7,0) {$x$};
+	\draw [->] (0,-.2) -- (0,4);
+	\node [above left] at (0,4) {$y$};
+	
+	\node [below] at (3.5,-.1) {Attained service};
+	\node [rotate=90, left, anchor=south] at (-.1,2) {Elapsed time};
+
+  \draw<1> [azulcito, fill=azulcito] (0,0) circle [radius=0.1];
+  \node<1> [azulcito] at (3.5,3.5) {New arrival at rate $\lambda dt$ at $(0,0)$};
+
+  \draw<2> [thick,gray,->] plot[smooth] coordinates {(0,0) (1.8,1) (2,1.5) (3,2)}; 
+  \draw<2> [gray, fill=gray, opacity=0.5] (0,0) circle [radius=0.1];
+  \draw<2> [teal, fill=teal] (3,2) circle [radius=0.1];
+  \draw<2> [teal, fill=teal,->] (3,2) -- (3.5,2) node[right]{$r(x,y)$};
+  \draw<2> [teal, fill=teal,->] (3,2) -- (3,2.5) node[left]{$1$};
+  \node<2> [teal] at (3.5,3.5) {Moves along the field $\mathbf{r} = \begin{pmatrix}
+  r(x,y) \\ 1
+  \end{pmatrix}$};
+
+  \draw<3> [thick,gray,->] plot[smooth] coordinates {(0,0) (1.8,1) (2,1.5) (3,2) (4.1,2.3)}; 
+  \draw<3> [gray, fill=gray, opacity=0.5] (0,0) circle [radius=0.1];
+  \node<3> [purple, fill=purple, starburst, inner sep=1.5pt,/pgf/starburst point height=3] at (4.1,2.3) {};
+  \node<3> [purple] at (3.5,3.5) {Leaves the system at $(x,y)$};
+\end{tikzpicture}
+
+\end{frame}
+
+
+\begin{frame}{The hazard rate field}
+
+\end{frame}
+
+
+\section{Performance analysis}
+
+\begin{frame}{Solving the transport equation}{Remaining service case}
+
+\end{frame}
+
+\begin{frame}{Solving the transport equation}{Attained service case}
+
+\end{frame}
+
+
+\section{Simulations}
+
 
 \section{Future work}
 
