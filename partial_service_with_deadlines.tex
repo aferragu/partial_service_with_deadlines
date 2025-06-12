@@ -9,6 +9,8 @@
 \usepackage{libertine}
 \usepackage{array}
 \usepackage{enumitem}
+\usepackage{marvosym}
+
 \setitemize{label=\usebeamerfont*{itemize item}%
   \usebeamercolor[fg]{itemize item}
   \usebeamertemplate{itemize item},
@@ -156,7 +158,7 @@
 
 	One of the most used policies is \alert{Earliest-Deadline-First (EDF)}
 	\begin{itemize}
-		\item Serve the customers with more urgent deadlines in priority.
+		\item Give priority to tasks with more urgent deadlines.
 	\end{itemize}
 	\vfill
 	\pause
@@ -238,6 +240,251 @@
 \end{frame}
 
 \section{A crash course on measure valued processes}
+
+\begin{frame}{Measure valued stochastic processes}
+	
+	Consider the simple $M/G/\infty$ queue:
+	\begin{itemize}
+		\item Tasks arrive as a Poisson process of intensity $\lambda$.
+		\item Each task has a service requirement $S\sim g(\sigma)$.
+	\end{itemize}
+	\vfill
+	\begin{center}
+		\begin{tikzpicture}    
+			\draw [->] (-.2,0) -- node[midway,below,yshift=-1ex]{\footnotesize Remaining service} (7,0);
+			\node [below right] at (7,0) {$\sigma$};
+			\draw (0,.1) -- (0,-.1) node[below] {$0$};
+
+			\uncover<2>{
+				\draw [->,rojito] (6,1) node[above] {New mass arrives, rate $\lambda g(\sigma)d\sigma dt$} -- (6,.1);
+				\draw [rojito, fill=rojito] (6,0) circle [radius=0.1];
+			}
+			\uncover<3>{
+				\draw [azulcito, fill=azulcito] (6,0) circle [radius=0.1];
+				\draw [thick,->] (6,.2) -- node[midway,above,yshift=1ex] {Drifts to the left ar rate $1$} ++(-.3,0);
+			}
+			\uncover<4>{
+				\draw [azulcito, fill=azulcito, opacity = 0.5, fill opacity=0.5] (0,0) circle [radius=0.1];
+				\node[azulcito] at (0.2,0.5) {\Huge\Lightning};
+				\node[azulcito] at (1,1.1) {Departure};
+			}
+			\uncover<5->{
+				\foreach \x in {.5,.8,2,2.5,3.7,4.3,5,5.5} {
+					\draw [azulcito, fill=azulcito] (\x,0) circle [radius=0.1];
+					\draw<5> [thick,->] (\x,.2) --  ++(-.3,0);
+				}
+				\node at (3.5,1) {Steady-state};
+			}
+
+			
+		\end{tikzpicture}
+	\end{center}
+	\vfill
+	\uncover<6->{
+		\alert{State-descriptor:}
+		\begin{equation*}
+			\Phi_t = \sum_i \delta_{\sigma_i(t)}
+		\end{equation*}
+		a Point-process on the positive half-line.
+	}
+\end{frame}
+
+\begin{frame}{M/G/$\infty$, steady state}
+	
+	\begin{itemize}
+		\item $\Phi_t$ is a measure-valued Markov process.
+		\item Its dynamics can be characterized through its generator.
+		\item In steady state:
+		\begin{equation*}
+			\Phi \sim \textrm{Poisson Process with mean measure } \mu(d\sigma) = \lambda \bar{G}(\sigma)d\sigma
+		\end{equation*}
+		where $\bar{G}$ is the CCDF of $S$.
+	\end{itemize}
+
+	\pause
+	\vfill
+	\alert{Interpretation:}
+
+	\begin{itemize}
+	 \item Write $\mu(d\sigma) = \rho \left[\frac{1}{E[S]}(1-G(\sigma))\right]d\sigma$, with $\rho = \lambda E[S]$.
+	 \item Then $\left[\frac{1}{E[S]}(1-G(\sigma))\right]d\sigma$ is the \emph{residual service time distribution} associated to $G$.
+	 \item In steady-state, the total number of customers $\sim \textrm{Poisson}(\rho)$ and distributed in $\sigma$ as the residual lifetime distribution.
+	\end{itemize}
+
+\end{frame}
+
+\begin{frame}{M/G/$\infty$, fluid approximation.}
+	
+	Suppose that we can replace $\Phi_t$ by a general measure $\mu_t$ with density $f(\sigma;t)$. 
+	
+	\begin{center}
+		\begin{tikzpicture}    
+			\draw [->] (-.2,0) -- node[midway,below,yshift=-1ex]{\footnotesize Remaining service} (7,0);
+			\node [below right] at (7,0) {$\sigma$};
+			\draw (0,.1) -- (0,-.1) node[below] {$0$};
+
+			\draw [azulcito, very thick] plot [smooth] coordinates {(0,2) (2,1) (3,.8) (4,.5) (5,.3) (6,.1)};
+			\node[azulcito] at (4,1) {$f(\sigma;t)$};
+		\end{tikzpicture}
+	\end{center}
+	\begin{itemize}
+		\item Mass is transported to the left at rate $1$.
+		\item New mass arrives at $\sigma$ with intensity $\lambda g(\sigma)d\sigma dt$.
+	\end{itemize}
+\vfill
+	We can combine this in the following \alert{transport equation}:
+	\begin{equation*}
+		\frac{\partial f}{\partial t} = \frac{\partial f}{\partial \sigma} + \lambda g(\sigma).
+	\end{equation*}
+
+\end{frame}
+
+\begin{frame}{M/G/$\infty$, fluid approximation.}
+
+	Imposing equilibrium and the boundary condition $f(\sigma)\to 0$ as $\sigma\to\infty$ we get:
+	\begin{equation*}
+		\frac{\partial f}{\partial \sigma} + \lambda g(\sigma) = 0 \Longrightarrow f(\sigma) = \lambda \int_\sigma^{\infty} g(u)\, du = \lambda \bar{G}(\sigma),
+	\end{equation*}
+	so the fluid approximation recovers the mean measure of $\Phi$.
+
+	\pause\vfill
+	\begin{itemize}
+		\item This is a deterministic measure, with total mass $\rho$... 
+		\item ...distributed in the real line as the residual service distribution.
+		\item Serves as an approximation of $\Phi$ in a large scale system ($\lambda\to\infty$).
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{M/G/$\infty$: take two}{Attained service state descriptor}
+
+	Here is another approach to model the same system \cite{kangramanan2010fluid}:
+	\vfill
+	\begin{center}
+		\begin{tikzpicture}    
+			\draw [->] (-.2,0) -- node[midway,below,yshift=-1ex]{\footnotesize Attained service} (7,0);
+			\node [below right] at (7,0) {$x$};
+			\draw (0,.1) -- (0,-.1) node[below] {$0$};
+
+			\uncover<2>{
+				\draw [->,rojito] (0,1) node[above] {New mass arrives, rate $\lambda dt$} -- (0,.1);
+				\draw [rojito, fill=rojito] (0,0) circle [radius=0.1];
+			}
+			\uncover<3>{
+				\draw [azulcito, fill=azulcito] (0,0) circle [radius=0.1];
+				\draw [thick,->] (0,.2) -- node[midway,above,yshift=1ex] {Drifts to the right ar rate $1$} ++(.3,0);
+			}
+			\uncover<4>{
+				\draw [azulcito, fill=azulcito, opacity = 0.5, fill opacity=0.5] (5,0) circle [radius=0.1];
+				\node[azulcito] at (5.2,0.5) {\Huge\Lightning};
+				\node[azulcito] at (5,1.1) {Departure when $S$ expires};
+			}
+			\uncover<5->{
+				\foreach \x in {.5,.8,2,2.5,3.7,4.3,5,5.5} {
+					\draw [azulcito, fill=azulcito] (\x,0) circle [radius=0.1];
+					\draw<5> [thick,->] (\x,.2) --  ++(.3,0);
+				}
+				\node at (3.5,1) {Steady-state};
+			}
+
+			
+		\end{tikzpicture}
+	\end{center}
+	\vfill
+	\uncover<6->{
+		\alert{State-descriptor:}
+		\begin{equation*}
+			\tilde{\Phi}_t = \sum_i \delta_{x_i(t)}
+		\end{equation*}
+		a Point-process on the positive half-line, where $x_i(t)$ is the elapsed time in the system
+	}
+
+\end{frame}
+
+\begin{frame}{M/G/$\infty$, take two}{Steady-state}
+	
+	$\tilde\Phi_t$ is a measure-valued Markov process.
+
+	\begin{itemize}
+		\item Mass always arrive at $0$ with rate $\lambda dt$.
+		\item Transports to the right at rate $1$.
+		\item Leaves the system at rate $h(x)$, the \alert{hazard rate function}:
+		\begin{equation*}
+			h(x) = \lim_{dt\to 0} P(S\in[x,x+dt]\mid S>x) = \frac{g(x)}{\bar{G}(x)} = -\frac{\partial}{\partial x} \log \bar{G}(x).
+		\end{equation*}
+	\end{itemize}
+
+	\pause
+	\vfill
+	\alert{Steady-state:}
+		\begin{equation*}
+			\tilde\Phi \sim \textrm{Poisson Process with mean measure } \nu(dx) = \lambda \bar{G}(x)dx
+		\end{equation*}
+	
+	
+	\vfill
+
+	So the reversed representation has the same distribution, because in a random point in time the elapsed service and the remaining service have the same distribution.
+
+\end{frame}
+
+
+\begin{frame}{M/G/$\infty$: take two}{Fluid approximation.}
+	
+	Suppose that we can replace $\tilde\Phi_t$ by a general measure $\nu_t$ with density $\tilde f(x;t)$. 
+	
+	\begin{center}
+		\begin{tikzpicture}    
+			\draw [->] (-.2,0) -- node[midway,below,yshift=-1ex]{\footnotesize Attained service} (7,0);
+			\node [below right] at (7,0) {$x$};
+			\draw (0,.1) -- (0,-.1) node[below] {$0$};
+
+			\draw [azulcito, very thick] plot [smooth] coordinates {(0,2) (2,1) (3,.8) (4,.5) (5,.3) (6,.1)};
+			\node[azulcito] at (4,1) {$\tilde f(x;t)$};
+		\end{tikzpicture}
+	\end{center}
+\vfill
+\pause
+The corresponding transport equation is (informally):
+	\begin{equation*}
+		\frac{\partial \tilde f}{\partial t} = -\frac{\partial \tilde f}{\partial x} - h(x)\tilde{f} + \lambda \delta_0.
+	\end{equation*}
+\end{frame}
+
+\begin{frame}{M/G/$\infty$: take two}{Fluid equilibrium.}
+	
+Imposing equilibrium we get:
+	\begin{equation*}
+		\frac{\partial \tilde f}{\partial x} = - h(x)\tilde{f} + \lambda \delta_0.
+	\end{equation*}
+
+Solving (in a distribution sense) with the boundary condition $\tilde f (\infty) = 0$ we get:
+	\begin{equation*}
+		\tilde{f}(x) = \lambda e^{-\int_0^x h(u)du}.
+	\end{equation*}
+
+But by definition $\int_0^x h(u) du = -\log \bar{G}(x)$, and thus:
+	\begin{equation*}
+		\tilde{f}(x) = \lambda \bar{G}(x)
+	\end{equation*}
+
+So the transport fluid equation recovers again the mean measure of the steady-state.
+
+\end{frame}
+
+\begin{frame}{Lessons learned}
+
+	\begin{myitem}
+		\item We can model $M/G$ systems by using two state descriptors:
+			\begin{itemize}
+				\item The remaining service $\Phi$.
+				\item The attained service $\tilde\Phi$.
+			\end{itemize}
+		\item Both admit reasonable fluid approximations, which correspond to transport equations.
+		\item In fact this has been used in the literature to model abandonments (since they operate as $M/G/\infty$ systems in some sense).
+	\end{myitem}
+	\pause \vfill
+	\alert{Question:} can we do more using this machinery of measure-valued processes?
+\end{frame}
 
 \section{Partial service queues}
 
