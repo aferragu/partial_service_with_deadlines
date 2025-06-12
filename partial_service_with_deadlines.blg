@@ -1,0 +1,46 @@
+This is BibTeX, Version 0.99d (TeX Live 2023)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: partial_service_with_deadlines.aux
+The style file: abbrvnat.bst
+Database file #1: reneging.bib
+You've used 10 entries,
+            2773 wiz_defined-function locations,
+            666 strings with 6283 characters,
+and the built_in function-call counts, 4741 in all, are:
+= -- 439
+> -- 231
+< -- 6
++ -- 79
+- -- 69
+* -- 410
+:= -- 722
+add.period$ -- 30
+call.type$ -- 10
+change.case$ -- 53
+chr.to.int$ -- 10
+cite$ -- 20
+duplicate$ -- 204
+empty$ -- 410
+format.name$ -- 85
+if$ -- 980
+int.to.chr$ -- 1
+int.to.str$ -- 1
+missing$ -- 10
+newline$ -- 58
+num.names$ -- 40
+pop$ -- 89
+preamble$ -- 1
+purify$ -- 43
+quote$ -- 0
+skip$ -- 148
+stack$ -- 0
+substring$ -- 284
+swap$ -- 12
+text.length$ -- 0
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 110
+warning$ -- 0
+while$ -- 49
+width$ -- 0
+write$ -- 137

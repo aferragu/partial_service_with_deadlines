@@ -8,7 +8,6 @@
 \usepackage[T1]{fontenc}
 \usepackage{libertine}
 \usepackage{array}
-
 \usepackage{enumitem}
 \setitemize{label=\usebeamerfont*{itemize item}%
   \usebeamercolor[fg]{itemize item}
@@ -18,21 +17,17 @@
 \setbeamertemplate{itemize subitem}[circle]
 
 \usepackage{pgfplots}
-\pgfplotsset{compat=1.18}
 \usepackage{tikz}
 \usetikzlibrary{automata, arrows, positioning, calc, external, babel, backgrounds, matrix, shapes, shadings}
 \usepgfplotslibrary{fillbetween}
 
 
-% \tikzset{
-% 	invisible/.style={opacity=0},
-% 	visible on/.style={alt={#1{}{invisible}}},
-% 	alt/.code args={<#1>#2#3}{%
-% 		\alt<#1>{\pgfkeysalso{#2}}{\pgfkeysalso{#3}} % \pgfkeysalso doesn't change the path
-% 	},
-% }
+%%natbib conf
+\usepackage[square,authoryear]{natbib}
+\renewcommand{\cite}{\citep}
+\renewcommand{\bibfont}{\small}
+\bibliographystyle{abbrvnat} 
 
-%\pgfplotsset{every axis/.append style={label style={font=\small},tick label style={font=\footnotesize} }}
 
 \newcommand{\graphheight}{7cm}
 \newcommand{\graphwidth}{11cm}
@@ -67,6 +62,9 @@
 \tikzset{>=stealth}
 
 \newtheorem{proposition}{Proposition}
+%\newtheorem{definition}{Definition}
+%\newtheorem{lemma}{Lemma}
+%\newtheorem{corollary}{Corollary}
 
 \defbeamertemplate*{footline}{mitema}
 {
@@ -136,9 +134,112 @@
 \tableofcontents
 \end{frame}
 
-\section{Motivation}
+\section{Introduction}
 
-\section{System model}
+\begin{frame}{Motivation}{A bit of history...}
+
+	\begin{myitem}
+		\item Several queueing systems have service and \alert{timing} requirements.
+		\item Examples:
+		\begin{itemize}
+			\item Computing tasks with real-time constraints.
+			\item Item delivery problems in logistics.
+			\item Emergency response.
+			\item etc. etc. etc.
+		\end{itemize}
+		\item This has led to a long and rich history of research about \alert{queues with abandonments} \cite{barrer1957queuing,stanford1979reneging,baccellietal1984single}.
+	\end{myitem}
+
+\end{frame}
+
+\begin{frame}{Motivation}{Recent developments...}
+
+	One of the most used policies is \alert{Earliest-Deadline-First (EDF)}
+	\begin{itemize}
+		\item Serve the customers with more urgent deadlines in priority.
+	\end{itemize}
+	\vfill
+	\pause
+	
+	Through fluid limits and diffusion approximations, establish performance:
+	\begin{itemize}
+		\item \cite{decreusefondmoyal2005fluid} establish EDF fluid limits in the single server case.
+		\item \cite{kruketal2011heavy} provides diffusion approximations.
+		\item \cite{moyal2013queues} establish some optimality properties of EDF.
+		\item \cite{kangramanan2010fluid, kangramanan2012asymptotic} analyze the many-server case.
+		\item \cite{ataretal2018law,ataretal2023long} establish asymptotic performance.
+	\end{itemize}
+	\vfill
+	and many others...
+\end{frame}
+
+\begin{frame}{Motivation}
+	
+	\begin{block}{Common assumption}
+		\begin{center}
+		Customers renege \emph{only} in the queue, and not during service.
+		\end{center}
+	\end{block}
+	\vfill
+	\pause
+
+	We call this the \emph{call-center scenario}:
+
+	\begin{itemize}
+		\item Akin to waiting for the customer-help line to pick your call while you listen to annoying music.
+		
+		\item The underlying idea is that when a task reaches service, it will stay until completion.
+		
+	\end{itemize}
+	
+	\vfill
+
+	\alert{Key performance metric:} number of satisfied tasks (or reneging probability).
+
+\end{frame}
+
+\begin{frame}{Motivation}{Partial service queues}
+
+	In several queueing systems:
+
+	\begin{itemize}
+		\item Tasks may abandon during service.
+		\item More importantly, \alert{all service provided may be useful}.
+	\end{itemize}
+
+	\vfill
+
+	We call this setting \alert{queues with partial service}.
+
+	\pause
+
+	\vfill
+
+	Some examples:
+	\begin{itemize}
+		\item Electrical vehicle charging: customers leave the system with a \emph{partial charge}.
+		\item LLM inference: longer computation times lead to better answers, but these may be interrupted to deliver a quick response.
+		\item File transfers over the Internet, that can be resumed later.
+	\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Key points of this talk}
+	
+	\begin{myitem}
+		\item Provide some suitable representation of the state space and dynamics of these partial service queues.
+		
+		\item Analyze several interesting policies under a suitable fluid model.
+		
+		\item Compute the main performance metric here: \alert{attained work}.
+		
+		\item \emph{Last but not least:} show that the simple LCFS policy \alert{exhibits the same performance} than EDF in this setting, without using deadline information. 
+	\end{myitem}
+\end{frame}
+
+\section{A crash course on measure valued processes}
+
+\section{Partial service queues}
 
 \begin{frame}{Remaining service state descriptor}
 
@@ -418,8 +519,6 @@
 
 \end{frame}
 
-\section{Perceived performance}
-
 \begin{frame}{Perceived performance in EDF}
 	\begin{tikzpicture}[scale=0.6]
 			\tikzset{font=\small}
@@ -494,4 +593,7 @@
 	\href{http://aferragu.github.io}{\alert{https://aferragu.github.io}}
 \end{frame}
 
+\begin{frame}[allowframebreaks]{References}
+	\bibliography{reneging}
+\end{frame}
 \end{document}

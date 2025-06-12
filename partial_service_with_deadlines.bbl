@@ -1,0 +1,58 @@
+\begin{thebibliography}{10}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Atar et~al.(2018)Atar, Biswas, and Kaspi]{ataretal2018law}
+R.~Atar, A.~Biswas, and H.~Kaspi.
+\newblock Law of large numbers for the many-server earliest-deadline-first queue.
+\newblock \emph{Stochastic Processes and their Applications}, 128\penalty0 (7):\penalty0 2270--2296, 2018.
+
+\bibitem[Atar et~al.(2023)Atar, Kang, Kaspi, and Ramanan]{ataretal2023long}
+R.~Atar, W.~Kang, H.~Kaspi, and K.~Ramanan.
+\newblock Long-time limit of nonlinearly coupled measure-valued equations that model many-server queues with reneging.
+\newblock \emph{SIAM Journal on Mathematical Analysis}, 55\penalty0 (6):\penalty0 7189--7239, 2023.
+
+\bibitem[Baccelli et~al.(1984)Baccelli, Boyer, and Hebuterne]{baccellietal1984single}
+F.~Baccelli, P.~Boyer, and G.~Hebuterne.
+\newblock Single-server queues with impatient customers.
+\newblock \emph{Advances in Applied Probability}, 16\penalty0 (4):\penalty0 887--905, 1984.
+
+\bibitem[Barrer(1957)]{barrer1957queuing}
+D.~Barrer.
+\newblock Queuing with impatient customers and ordered service.
+\newblock \emph{Operations Research}, 5\penalty0 (5):\penalty0 650--656, 1957.
+
+\bibitem[Decreusefond and Moyal(2008)]{decreusefondmoyal2005fluid}
+L.~Decreusefond and P.~Moyal.
+\newblock Fluid limit of a heavily loaded {EDF} queue with impatient customers.
+\newblock \emph{Markov Processes and Related Fields}, 14\penalty0 (1):\penalty0 131--158, 2008.
+
+\bibitem[Kang and Ramanan(2010)]{kangramanan2010fluid}
+W.~Kang and K.~Ramanan.
+\newblock Fluid limits of many-server queues with reneging.
+\newblock \emph{Annals of Applied Probabability}, 20\penalty0 (6):\penalty0 2204--2260, Dec. 2010.
+
+\bibitem[Kang and Ramanan(2012)]{kangramanan2012asymptotic}
+W.~Kang and K.~Ramanan.
+\newblock Asymptotic approximations for stationary distributions of many-server queues with abandonment.
+\newblock \emph{Annals of Applied Probabability}, 22\penalty0 (2):\penalty0 477--521, Apr. 2012.
+
+\bibitem[Kruk et~al.(2011)Kruk, Lehoczky, Ramanan, and Shreve]{kruketal2011heavy}
+{\L}.~Kruk, J.~Lehoczky, K.~Ramanan, and S.~Shreve.
+\newblock Heavy traffic analysis for {EDF} queues with reneging.
+\newblock \emph{Annals of Applied Probability}, 21\penalty0 (2):\penalty0 484--545, 2011.
+
+\bibitem[Moyal(2013)]{moyal2013queues}
+P.~Moyal.
+\newblock On queues with impatience: stability, and the optimality of earliest deadline first.
+\newblock \emph{Queueing Systems}, 75:\penalty0 211--242, 2013.
+
+\bibitem[Stanford(1979)]{stanford1979reneging}
+R.~E. Stanford.
+\newblock Reneging phenomena in single channel queues.
+\newblock \emph{Mathematics of Operations Research}, 4\penalty0 (2):\penalty0 162--178, 1979.
+
+\end{thebibliography}
