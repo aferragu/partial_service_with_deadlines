@@ -1,0 +1,18 @@
+
+\tikzsetnextfilename{service_profile_edf}
+\begin{tikzpicture}[scale=0.5]
+	\draw [->] (-.5,0) -- (10,0);
+	\node [below right] at (10,0) {$t$};
+	\draw [-] (0,-.2) -- (0,.2);
+	\node [below left] at (0,0) {$a_k$};
+	\draw [very thick,azulcito,->] (-.03,0) -- (-0.03,4) node  [left] {$S_k$};
+	\draw [very thick,rojito,->] (.03,0) -- (0.03,7) node  [left] {$T_k$};
+	\draw [dotted,rojito,->] (0,7) -- (7,0) node [below] {$a_k+T_k$};
+	%\draw [dotted,azulcito,->] (0,4) -- (4,0) node [below] {$a_k+S_k$};
+	%immediate scheduling
+	\draw [black,thick,->] (0,4) -- (4,4) node[above right] {EDF profile}  -- (7,1);
+	\draw [black,dotted,->] (4,0) -- (4,3) node [left] {$\tau^*$};
+
+    \draw [decorate, decoration = {brace,mirror,amplitude=5pt}] (7.5,1) -- node[midway,right, xshift=5pt] {$S_a$} (7.5,4);
+
+\end{tikzpicture}%

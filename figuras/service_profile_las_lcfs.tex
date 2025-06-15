@@ -1,0 +1,16 @@
+\tikzsetnextfilename{service_profile_las_lcfs}
+\begin{tikzpicture}[scale=0.5]
+	
+	\draw [->] (-.5,0) -- (10,0);
+	\node [below right] at (10,0) {$t$};
+	\draw [-] (0,-.2) -- (0,.2);
+	\node [below left] at (0,0) {$a_i$};
+	\draw [very thick,azulcito,->] (-.03,0) -- (-0.03,4) node  [left] {$S_i$};
+	\draw [very thick,rojito,->] (.03,0) -- (0.03,7) node  [left] {$T_i$};
+	\draw [dotted,rojito,->] (0,7) -- (7,0) node [below] {$a_i+T_i$};
+	%\draw [dotted,azulcito,->] (0,4) -- (4,0) node [below] {$a_k+S_k$};
+	%immediate scheduling
+	\draw [black,thick,->] (0,4) -- node [midway, right,xshift=2pt] {LCFS/LAS profile} (3,1) -- (7,1);
+	\draw [black,dotted,->] (0,1) -- (3,1) node [below] {$z^*$};
+	\draw [decorate, decoration = {brace,mirror,amplitude=5pt}] (7.5,1) -- node[midway,right, xshift=5pt] {$S_a$} (7.5,4);
+\end{tikzpicture}%
