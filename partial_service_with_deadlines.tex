@@ -30,14 +30,15 @@
 \renewcommand{\bibfont}{\small}
 \bibliographystyle{abbrvnat} 
 
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\brackets}[2]{\left\langle#1,#2\right\rangle}
+\newcommand{\ind}[1]{\mathbf{1}_{\left\{#1\right\}}}
 
 \newcommand{\graphheight}{7cm}
 \newcommand{\graphwidth}{11cm}
 
 \newcommand{\E}[1]{E\left[#1 \right]}
-\newcommand{\ind}[1]{\mathbf{1}_{#1}}
-
-%\newcommand{\P}[1]{E\left[#1\right]}
+\renewcommand{\phi}{\varphi}
 
 % \definecolor{azulcito}{RGB}{20,70,140}
 \definecolor{azulcito}{RGB}{0,90,150}
@@ -109,12 +110,12 @@
 
 \usefonttheme[onlymath]{serif}
 
-\title{Last but not least...}
-\subtitle{Matching Earliest-Deadline-First performance through deadline-oblivious policies}
+\title{The last, the least and the urgent...}
+\subtitle{A story of three policies}
 
 \author[Andres Ferragut, Universidad ORT Uruguay]{Andres Ferragut}
-\institute{Universidad ORT Uruguay}
-\date[INRIA Paris Seminar -- Jun 2025]{INRIA Paris Seminar -- June 2025}
+\institute{Joint work with Diego Goldsztajn and Fernando Paganini\\ \smallskip Universidad ORT Uruguay}
+\date[INRIA MATHNET Seminar -- Jun 2025]{INRIA MATHNET Seminar -- June 2025}
 
 \AtBeginSection[]
 {
@@ -486,227 +487,320 @@ So the transport fluid equation recovers again the mean measure of the steady-st
 	\alert{Question:} can we do more using this machinery of measure-valued processes?
 \end{frame}
 
-\section{Partial service queues}
+\section{Partial service queues and Earliest-Deadline-First}
 
-\begin{frame}{Remaining service state descriptor}
+\begin{frame}{Partial service queues}{Setting}
 
-  \begin{tikzpicture}
+	Consider an $M/G/C$ system where:
+	\begin{columns}
+		\begin{column}{0.5\textwidth}
+			\begin{itemize}
+			\item Tasks arrive as a Poisson process of intensity $\lambda$.
+			\item<2-> Each task $i$ has two characteristics (marks):
+			\begin{itemize}
+				\item $S_i$: service time (at rate $1$).
+				\item $T_i$: sojourn time or deadline.
+			\end{itemize}
+			\item<3-> $(S_i,T_i)$ are independent across jobs.
+			\item<3-> Follow a common distribution $G(\sigma,\tau)$, possibly correlated.
+			\end{itemize} 
+		\end{column}
+		\begin{column}{0.5\textwidth}
+
+			\begin{tikzpicture}
+				\node (arrival) at (0,0) {$\lambda$};
+				\node [right of=arrival] (queuel) {};
+				\draw[->] (arrival) -- (queuel);
+				\draw[thick] (queuel)++(0,.6) --node[midway,above] {Queue} ++(3,0) -- ++(0,-1.2) -- ++(-3,0);
+
+				\foreach \x in {2,2.4,2.8,3.2,3.6} {
+					\fill[rojito,thick, fill=rojito!70!white] (\x,.5) rectangle ++(.3,-1);
+				}
+				\foreach \y in {2,1,0,-1,-2} {
+					\draw[azulcito, thick, fill=azulcito!70!white] (5,\y) circle [radius=.4];
+				}
+				\node[above] at (5,2.5) {$C$ servers};
+
+				\draw<2->[thick,rojito] (2.5,-.75) rectangle ++(1,-1.6);
+				\node<2-> at (3,-1.2) {\includegraphics[width=.5cm]{figuras/battery_mid.png}};
+				\node<2-> at (3,-2) {\includegraphics[width=.5cm]{figuras/clock.png}};
+
+				\draw<2->[rojito,thick,->] (2.15,-.5) -- (2.15,-1.6) -- (2.5,-1.6);
+			\end{tikzpicture}
+
+		\end{column}
+	\end{columns}
+\end{frame}
+
+\begin{frame}{Partial service queues}{Definition}
+
+	\begin{block}{Partial service queue}
+		Customers depart whenever $S_i$ is attained or the timer $T_i$ expires.
+	\end{block}
+	\vfill
+
+	\pause
+	\begin{myitem}
+		\item In particular, they may leave \alert{during service}.
+
+		\item Key performance metrics:
+		\begin{myitem}[1em]
+			\item \alert{$S_a$}: amount of service \alert{attained}.
+			\item Equivalently, \alert{$S_r$}$:=S-S_a$, amount of service \alert{reneged}. 
+		\end{myitem}
+
+		\pause
+
+		\item \alert{Problem:} we have to keep track of remaining service and deadlines simultaneously!
+	\end{myitem}
+\end{frame}
+
+
+\begin{frame}{System load}
+
+	\begin{myitem}
+		
+	\item Before proceeding, it is useful to define the \alert{system laod}:
+
+	\begin{equation*}
+		\rho:= \lambda E[\min\{S,T\}].
+	\end{equation*}
+
+	\pause
+
+	\item \alert{Interpretation:} the mean number of customers on a system with $C=\infty$.
+
+	\item What we expect in a large scale fluid model:
+	
+	\begin{itemize}
+	 \item If $\rho<C$ (underload), all tasks can be served, $S_a = \min\{S,T\}$.
+	 \item If $\rho>C$ (overload), demand \emph{curtailing} will occur. How? It depends on the policy...
+	\end{itemize}
+
+	\end{myitem}
+
+
+\end{frame}
+
+\begin{frame}{System evolution}{Remaining service times}
+
+	\begin{columns}
+	\begin{column}{0.45\textwidth}
+		  \begin{tikzpicture}[scale=0.9]
     
-  \draw [->] (-.2,0) -- (7,0);
-  \node [below right] at (7,0) {$\sigma$};
-  \draw [->] (0,-.2) -- (0,4);
-  \node [above left] at (0,4) {$\tau$};
-  
-  \node [below] at (3.5,-.1) {Remaining service};
-  \node [rotate=90, left, anchor=south] at (-.1,2) { Remaining time};
-  
-%	\draw [thick,gray,->] (4,2.3) -- ++(0,-.4);
-  \draw<1> [azulcito, fill=azulcito] (4,2.3) circle [radius=0.1];
-  \node<1> [azulcito] at (3.5,3.5) {New arrival at rate $\lambda dt g(\sigma,\tau)$};
-
-  \draw<2> [thick,gray,->] plot[smooth] coordinates {(4,2.3) (3.8,2.2) (3.5,1.8) (3,1.5)}; 
-  \draw<2> [gray, fill=gray, opacity=0.5] (4,2.3) circle [radius=0.1];
-  \draw<2> [teal, fill=teal] (3,1.5) circle [radius=0.1];
-  \draw<2> [teal, fill=teal,->] (3,1.5) -- (2.5,1.5) node[left]{$r(\sigma,\tau)$};
-  \draw<2> [teal, fill=teal,->] (3,1.5) -- (3,1) node[right]{$1$};
-  \node<2> [teal] at (3.5,3.5) {Moves along the field $\mathbf{r} = \begin{pmatrix}
-  -r(\sigma,\tau) \\ -1
-  \end{pmatrix}$};
-
-  \draw<3> [thick,gray,->] plot[smooth] coordinates {(4,2.3) (3.8,2.2) (3.5,1.8) (3,1.5) (2.5,1.2) (2,.8) (.5,0)}; 
-  \draw<3-4> [gray, fill=gray, opacity=0.5] (4,2.3) circle [radius=0.1];
-  \node<3>[purple, fill=purple, starburst, inner sep=1.5pt,/pgf/starburst point height=3] at (.5,0) {};
-  \node<3> [purple] at (3.5,3.5) {Leaves with some positive unfinished work};
-
-  \draw<4> [thick,gray,->] plot[smooth] coordinates {(4,2.3) (3.8,2.2) (3.5,1.8) (2,1.5) (1.5,.5) (.5,.3) (0,.3)}; 
-  \draw<4> [blue, fill=blue] (0,.3) circle [radius=0.1];
-  \node<4> [blue] at (3.5,3.5) {Or is fully served};
-
-  \end{tikzpicture}
-
-\end{frame}
-
-\begin{frame}{Example}{Earliest-deadline-first}
-
-  \begin{tikzpicture}
-		
-	\draw [->] (-.2,0) -- (7,0);
-	\node [below right] at (7,0) {$\sigma$};
-	\draw [->] (0,-.2) -- (0,4);
-	\node [above left] at (0,4) {$\tau$};
-	
-	\node [below] at (3.5,-.1) {Remaining service};
-	\node [rotate=90, left, anchor=south] at (-.1,2) { Remaining time};
-	
-	\draw [thick,gray,->] (.5,.8) -- ++(-.3,-.3);
-	\draw [thick,gray,->] (.7,3.1) -- ++(0,-.4);
-	\draw [thick,gray,->] (1.2,1.5) -- ++(-.3,-.3);
-	\draw [thick,gray,->] (2,2.3) -- ++(0,-.4);
-	\draw [thick,gray,->] (2.5,1.3) -- ++(-.3,-.3);
-	\draw [thick,gray,->] (3,3.5) -- ++(0,-.4);
-	\draw [thick,gray,->] (4,2.3) -- ++(0,-.4);
-	\draw [thick,gray,->] (5,1.9) -- ++(0,-.4);
-	\draw [thick,gray,->] (6,3) -- ++(0,-.4);
-
-	\draw [teal, fill=teal] (.5,.8) circle [radius=0.1];
-	\draw [teal, fill=teal] (.7,3.1) circle [radius=0.1];
-	\draw [teal, fill=teal] (1.2,1.5) circle [radius=0.1];
-	\draw [teal, fill=teal]  (2,2.3) circle [radius=0.1];
-	\draw [teal, fill=teal] (2.5,1.3) circle [radius=0.1];
-	\draw [teal, fill=teal] (3,3.5) circle [radius=0.1];
-	\draw [teal, fill=teal] (4,2.3) circle [radius=0.1];
-	\draw [teal, fill=teal] (5,1.9) circle [radius=0.1];
-	\draw [blue, fill=blue] (6,3) circle [radius=0.1] node[above, yshift=3pt] {\small New arrival};
-
-	%reneging departure
-	%\draw [purple, fill=purple!20!white] (3,0) circle [radius=0.1] node[above, anchor=south west] {\small Reneging customer};
-	\node[purple, fill=purple, starburst, inner sep=1.5pt,/pgf/starburst point height=3] at (3,0) {};
-	\node[purple, anchor=south west] at (3,0){ \small Reneging customer};
-
-	\draw [gray, dotted, thick] (0,1.5) -- (6.8,1.5) node[black, right] {$\tau_\Phi$};
-
-\end{tikzpicture}
-
-\end{frame}
-
-\begin{frame}{Attained service state descriptor}
-
-\begin{tikzpicture}
-		
-	\draw [->] (-.2,0) -- (7,0);
-	\node [below right] at (7,0) {$x$};
-	\draw [->] (0,-.2) -- (0,4);
-	\node [above left] at (0,4) {$y$};
-	
-	\node [below] at (3.5,-.1) {Attained service};
-	\node [rotate=90, left, anchor=south] at (-.1,2) {Elapsed time};
-
-  \draw<1> [azulcito, fill=azulcito] (0,0) circle [radius=0.1];
-  \node<1> [azulcito] at (3.5,3.5) {New arrival at rate $\lambda dt$ at $(0,0)$};
-
-  \draw<2> [thick,gray,->] plot[smooth] coordinates {(0,0) (1.8,1) (2,1.5) (3,2)}; 
-  \draw<2> [gray, fill=gray, opacity=0.5] (0,0) circle [radius=0.1];
-  \draw<2> [teal, fill=teal] (3,2) circle [radius=0.1];
-  \draw<2> [teal, fill=teal,->] (3,2) -- (3.5,2) node[right]{$r(x,y)$};
-  \draw<2> [teal, fill=teal,->] (3,2) -- (3,2.5) node[left]{$1$};
-  \node<2> [teal] at (3.5,3.5) {Moves along the field $\mathbf{r} = \begin{pmatrix}
-  r(x,y) \\ 1
-  \end{pmatrix}$};
-
-  \draw<3> [thick,gray,->] plot[smooth] coordinates {(0,0) (1.8,1) (2,1.5) (3,2) (4.1,2.3)}; 
-  \draw<3> [gray, fill=gray, opacity=0.5] (0,0) circle [radius=0.1];
-  \node<3> [purple, fill=purple, starburst, inner sep=1.5pt,/pgf/starburst point height=3] at (4.1,2.3) {};
-  \node<3> [purple] at (3.5,3.5) {Leaves the system at $(x,y)$};
-\end{tikzpicture}
-
-\end{frame}
-
-\begin{frame}{Example}{Least-Attained-Service policy}
-  \begin{tikzpicture}
-		
-	\draw [->] (-.2,0) -- (7,0);
-	\node [below right] at (7,0) {$x$};
-	\draw [->] (0,-.2) -- (0,4);
-	\node [above left] at (0,4) {$y$};
-	
-	\node [below] at (3.5,-.1) {Attained service};
-	\node [rotate=90, left, anchor=south] at (-.1,2) {Elapsed time};
-	
-	\draw [thick,gray,->] (.5,.8) -- ++(.3,.3);
-	\draw [thick,gray,->] (.7,3.1) -- ++(.3,.3);
-	\draw [thick,gray,->] (1.2,1.5) -- ++(0,.4);
-	\draw [thick,gray,->] (2,2.3) -- ++(0,.4);
-	\draw [thick,gray,->] (2.5,1.3) -- ++(0,.4);
-	\draw [thick,gray,->] (3,3.5) -- ++(0,.4);
-	%\draw [thick,gray,->] (4,2.3) -- ++(.2,.4);
-	\draw [thick,gray,->] (5,1.9) -- ++(0,.4);
-	\draw [thick,gray,->] (6,3) -- ++(0,.4);
-
-	\draw [teal, fill=teal] (.5,.8) circle [radius=0.1];
-	\draw [teal, fill=teal] (.7,3.1) circle [radius=0.1];
-	\draw [teal, fill=teal] (1.2,1.5) circle [radius=0.1];
-	\draw [teal, fill=teal]  (2,2.3) circle [radius=0.1];
-	\draw [teal, fill=teal] (2.5,1.3) circle [radius=0.1];
-	\draw [teal, fill=teal] (3,3.5) circle [radius=0.1];
-	%\draw [teal!50!white, fill=teal!50!white] (4,2.3) starburst  node[teal,above] {\footnotesize Departure};
-	%\node[teal!50!white, fill=teal, starburst, inner sep=1.5pt,/pgf/starburst point height=3] at (4,2.3) {}; 
-	%\node[teal,above, yshift=3pt] at (4,2.3) {\footnotesize Departure};
-	
-    \node[purple, fill=purple, starburst, inner sep=1.5pt,/pgf/starburst point height=3] at (4,2.3) {};
-	\node[purple, above, yshift=3pt] at (4,2.3){ \small Departure};
-    
-    \draw [teal, fill=teal] (5,1.9) circle [radius=0.1];
-	\draw [teal, fill=teal] (6,3) circle [radius=0.1];
-	
-	%new arrival
-
-	\draw [thick,gray,->] (0,0) -- ++(.3,.3);
-	\draw [azulcito, fill=azulcito] (0,0) circle [radius=0.1] node[anchor=south west, xshift=6pt] {\small New arrival};
-	
-	\draw [gray, dotted, thick] (.7,0) -- (.7,3.8) node[black, right] {$x_{\tilde{\Phi}}$};
-
-\end{tikzpicture}
-
-\end{frame}
-
-
-\begin{frame}{Example}{Last-Come-First-Served policy}
-  
-  \begin{tikzpicture}
-		
-	\draw [->] (-.2,0) -- (7,0);
-	\node [below right] at (7,0) {$x$};
-	\draw [->] (0,-.2) -- (0,4);
-	\node [above left] at (0,4) {$y$};
-	
-	\node [below] at (3.5,-.1) {Attained service};
-	\node [rotate=90, left, anchor=south] at (-.1,2) {Elapsed time};
-	
-	\draw [thick,gray,->] (.5,.8) -- ++(.3,.3);
-	\draw [thick,gray,->] (.7,3.1) -- ++(0,.4);
-	\draw [thick,gray,->] (1.2,1.5) -- ++(0,.4);
-	\draw [thick,gray,->] (2,2.3) -- ++(0,.4);
-	\draw [thick,gray,->] (2.5,1.3) -- ++(.3,.3);
-	\draw [thick,gray,->] (3,3.5) -- ++(0,.4);
-	%\draw [thick,gray,->] (4,2.3) -- ++(.2,.4);
-	\draw [thick,gray,->] (5,1.9) -- ++(0,.4);
-	\draw [thick,gray,->] (6,3) -- ++(0,.4);
-
-	\draw [teal, fill=teal] (.5,.8) circle [radius=0.1];
-	\draw [teal, fill=teal] (.7,3.1) circle [radius=0.1];
-	\draw [teal, fill=teal] (1.2,1.5) circle [radius=0.1];
-	\draw [teal, fill=teal]  (2,2.3) circle [radius=0.1];
-	\draw [teal, fill=teal] (2.5,1.3) circle [radius=0.1];
-	\draw [teal, fill=teal] (3,3.5) circle [radius=0.1];
-	%\draw [teal!50!white, fill=teal!50!white] (4,2.3) starburst  node[teal,above] {\footnotesize Departure};
-	%\node[teal!50!white, fill=teal, starburst, inner sep=1.5pt,/pgf/starburst point height=3] at (4,2.3) {}; 
-	%\node[teal,above, yshift=3pt] at (4,2.3) {\footnotesize Departure};
-	\draw [teal, fill=teal] (5,1.9) circle [radius=0.1];
-	\draw [teal, fill=teal] (6,3) circle [radius=0.1];
+			\draw [->] (-.2,0) -- (7,0);
+			\node [below right] at (7,0) {$\sigma$};
+			\draw [->] (0,-.2) -- (0,4);
+			\node [above left] at (0,4) {$\tau$};
 			
-	\node[purple, fill=purple, starburst, inner sep=1.5pt,/pgf/starburst point height=3] at (4,2.3) {};
-	\node[purple, above, yshift=3pt] at (4,2.3){ \small Departure};
-	
-	%new arrival
+			\node [below] at (3.5,-.1) {Remaining service};
+			\node [rotate=90, left, anchor=south] at (-.1,2) {Remaining time};
+			
+			%	\draw [thick,gray,->] (4,2.3) -- ++(0,-.4);
+			\draw<2> [azulcito, fill=azulcito] (4,2.3) circle [radius=0.1];
+			\node<2> [azulcito] at (3.5,3.5) {New arrival at rate $\lambda g(\sigma,\tau)dtd\sigma d\tau$};
 
-	\draw [thick,gray,->] (0,0) -- ++(.3,.3);
-	\draw [azulcito, fill=azulcito] (0,0) circle [radius=0.1] node[anchor=south west, xshift=6pt] {\small New arrival};
-	
-	\draw [gray, dotted, thick] (0,1.3) -- (6.8,1.3) node[black, right] {$y_{\tilde{\Phi}}$};
+			\draw<3> [thick,gray,->] plot[smooth] coordinates {(4,2.3) (3.8,2.2) (3.5,1.8) (3,1.5)}; 
+			\draw<3> [gray, fill=gray, opacity=0.5] (4,2.3) circle [radius=0.1];
+			\draw<3> [teal, fill=teal] (3,1.5) circle [radius=0.1];
+			\draw<3> [teal, fill=teal,->] (3,1.5) -- (2.5,1.5) node[left]{$r(\sigma,\tau)$};
+			\draw<3> [teal, fill=teal,->] (3,1.5) -- (3,1) node[right]{$1$};
+			\node<3> [teal] at (3.5,3.5) {Moves along the field $\mathbf{r} = \begin{pmatrix}
+			-r(\sigma,\tau) \\ -1
+			\end{pmatrix}$};
 
-\end{tikzpicture}
+			\draw<4> [thick,gray,->] plot[smooth] coordinates {(4,2.3) (3.8,2.2) (3.5,1.8) (3,1.5) (2.5,1.2) (2,.8) (.5,0)}; 
+			\draw<4-5> [gray, fill=gray, opacity=0.5] (4,2.3) circle [radius=0.1];
+			\node<4>[purple, fill=purple, starburst, inner sep=1.5pt,/pgf/starburst point height=3] at (.5,0) {};
+			\node<4>[purple,above] at (.5,0) {$S_r$};
+			\node<4> [purple] at (3.5,3.5) {Leaves with some unfinished work};
+
+			\draw<5> [thick,gray,->] plot[smooth] coordinates {(4,2.3) (3.8,2.2) (3.5,1.8) (2,1.5) (1.5,.5) (.5,.3) (0,.3)}; 
+			\draw<5> [blue, fill=blue] (0,.3) circle [radius=0.1];
+			\node<5> [blue] at (3.5,3.5) {Or is fully served};
+
+		\end{tikzpicture}
+
+	\end{column}
+	\begin{column}{0.55\textwidth}
+		\begin{itemize}
+			\item<1-> Consider the remaining time space.
+			\item<3-> \alert{Policy} defines how tasks are served.
+			\item<3-> May depend on any combination of $(\sigma,\tau)$.
+			\item<5-> State descriptor:
+			 \begin{equation*}
+				\Phi_t = \sum_i \delta_{\sigma_i(t),\tau_i(t)}
+			 \end{equation*}
+		\end{itemize}
+	\end{column}
+	\end{columns}
 
 \end{frame}
-\begin{frame}{The hazard rate field}
 
+\begin{frame}{Example: Earliest-deadline-first}
+
+	\begin{columns}
+		\begin{column}{0.45\textwidth}
+		\begin{tikzpicture}[scale=0.9]
+				
+			\draw [->] (-.2,0) -- (7,0);
+			\node [below right] at (7,0) {$\sigma$};
+			\draw [->] (0,-.2) -- (0,4);
+			\node [above left] at (0,4) {$\tau$};
+			
+			\node [below] at (3.5,-.1) {Remaining service};
+			\node [rotate=90, left, anchor=south] at (-.1,2) {Remaining time};
+			
+			\draw [thick,gray,->] (.5,.8) -- ++(-.3,-.3);
+			\draw [thick,gray,->] (.7,3.1) -- ++(0,-.4);
+			\draw [thick,gray,->] (1.2,1.5) -- ++(-.3,-.3);
+			\draw [thick,gray,->] (2,2.3) -- ++(0,-.4);
+			\draw [thick,gray,->] (2.5,1.3) -- ++(-.3,-.3);
+			\draw [thick,gray,->] (3,3.5) -- ++(0,-.4);
+			\draw [thick,gray,->] (4,2.3) -- ++(0,-.4);
+			\draw [thick,gray,->] (5,1.9) -- ++(0,-.4);
+			\draw [thick,gray,->] (6,3) -- ++(0,-.4);
+
+			\draw [teal, fill=teal] (.5,.8) circle [radius=0.1];
+			\draw [teal, fill=teal] (.7,3.1) circle [radius=0.1];
+			\draw [teal, fill=teal] (1.2,1.5) circle [radius=0.1];
+			\draw [teal, fill=teal]  (2,2.3) circle [radius=0.1];
+			\draw [teal, fill=teal] (2.5,1.3) circle [radius=0.1];
+			\draw [teal, fill=teal] (3,3.5) circle [radius=0.1];
+			\draw [teal, fill=teal] (4,2.3) circle [radius=0.1];
+			\draw [teal, fill=teal] (5,1.9) circle [radius=0.1];
+			\draw [blue, fill=blue] (6,3) circle [radius=0.1] node[above, yshift=3pt] {\small New arrival};
+
+			%reneging departure
+			%\draw [purple, fill=purple!20!white] (3,0) circle [radius=0.1] node[above, anchor=south west] {\small Reneging customer};
+			\node[purple, fill=purple, starburst, inner sep=1.5pt,/pgf/starburst point height=3] at (3,0) {};
+			\node[purple, anchor=south west] at (3,0){ \small Reneging customer};
+
+			\draw [gray, dotted, thick] (0,1.5) -- (6.8,1.5) node[black, right] {$\tau_\Phi$};
+
+		\end{tikzpicture}
+	\end{column}
+	\begin{column}{0.55\textwidth}
+		\begin{itemize}
+			\item Serve the $C$ most urgent customers.
+			\item Corresponds to taking:
+				\begin{equation*}
+					r_\Phi(\sigma,\tau) = \mathbf{1}_{\{\tau\leqslant\tau_\Phi\}} 
+				\end{equation*}
+				with
+				\begin{equation*} 
+					\tau_\Phi := \sup\{\tau \geqslant 0: \Phi(\mathbb{R}_{+} \times (0, \tau]) < C\}. 	
+				\end{equation*} 
+		\end{itemize}
+	\end{column}
+\end{columns}
 \end{frame}
 
 
-\section{Performance analysis}
+\begin{frame}{Fluid model dynamics}
+	\begin{itemize}
+		\item Replace $\Phi_t$ by a (fluid) measure $\mu_t$.
+		\item Now mass drifts along the field:
+			\begin{equation*}
+				\mathbf{r}_\mu(\sigma,\tau) = \begin{pmatrix}
+				-r_\mu(\sigma,\tau) \\
+				-1
+				\end{pmatrix}
+ 			\end{equation*}
+		\item With $r_\mu$ satisfying:
+		\begin{gather*}
+			0\leqslant r_{\mu} \leqslant 1 \\
+			\iint r_\mu(\sigma,\tau) \mu(d\sigma,d\tau) \leqslant \min\{\mu(\R^2_{++}),C\}.
+		\end{gather*} 
+	\end{itemize}
+\end{frame}
 
-\begin{frame}{Solving the transport equation}{Remaining service case}
+\begin{frame}{Fluid model dynamics}{Weak formulation}
 
-\begin{tikzpicture}
+	We will describe these dynamics in terms of the projections 
+\begin{equation*}
+	\brackets{\phi}{\mu} := \iint \phi(\sigma,\tau) \, \mu(d\sigma,d\tau)
+\end{equation*}
+of the state measure with  respect to a test function $\phi:\R^2_{++}\to\R$, with continuous derivatives and compact support, i.e. $\phi \in \mathcal{C}^1_c(\R^2_{++})$.  
+
+\vfill
+
+We have:
+	\begin{equation*}
+	\brackets{\phi}{\mu_{t+dt}} = \iint \phi(\sigma-r_{\mu_t}dt,\tau-dt) \, \mu_{t}(d\sigma,d\tau) + \lambda dt \iint \phi(\sigma,\tau)g(\sigma,\tau)\, d\sigma d\tau + o(dt).
+\end{equation*}
+
+\end{frame}
+
+\begin{frame}{Fluid model dynamics}{Weak formulation}
+
+	\begin{align*}
+	\frac{\partial}{\partial t}\brackets{\phi}{\mu_{t}} =& \lim_{dt\to 0} \iint \frac{1}{dt} \left[\phi(\sigma-r_{\mu_t}dt,\tau-dt) - \phi(\sigma,\tau)\right] \mu_{t}(d\sigma,d\tau) \\ 
+	&+ \lambda \iint \phi(\sigma,\tau)g(\sigma,\tau) d\sigma d\tau\\
+=& - \iint \left[r_{\mu_t}(\sigma,\tau) \phi_\sigma (\sigma,\tau) + \phi_\tau(\sigma,\tau)\right]\mu_t(d\sigma,d\tau) + \lambda \iint \phi(\sigma,\tau)g(\sigma,\tau) d\sigma d\tau,
+\end{align*}
+
+\end{frame}
+
+\begin{frame}{Fluid model dynamics}{Weak formulation}
+
+	Equivalently:
+
+\begin{align*}
+	\brackets{\phi}{\mu_t} = \brackets{\phi}{\mu_0} + \int_0^t &\left[- \iint \left[r_{\mu_s}(\sigma,\tau) \phi_\sigma (\sigma,\tau) + \phi_\tau(\sigma,\tau)\right]\mu_t(d\sigma,d\tau)\right.\\
+	& \left. + \lambda \iint \phi(\sigma,\tau)g(\sigma,\tau)\, d\sigma d\tau \right]ds,
+\end{align*}
+for any $\phi \in \mathcal{C}^1_c(\R^2_{++})$.
+
+\pause
+\vfill
+
+Looks daunting, but is not that bad...
+
+\end{frame}
+
+\begin{frame}{Fluid model dynamics}{Transport PDE}
+
+	If $\mu_t$ admits a density $f(\sigma,\tau;t)$ with respect to the Lebesgue measure, it corresponds to:
+
+	\begin{equation*}
+		\frac{\partial f}{\partial t} + \nabla \cdot\left[\mathbf{r}_{\mu_t} f\right] = \lambda g
+	\end{equation*}
+	a transport equation.
+
+	\pause
+
+	\vfill
+
+	\alert{Example: EDF}
+
+	\begin{equation*}
+		\frac{\partial f}{\partial t} = \frac{\partial f}{\partial \sigma}\ind{\tau<\tau_{\mu_t}} + \frac{\partial f}{\partial \tau} +\lambda g
+	\end{equation*}
+
+\end{frame}
+
+\begin{frame}{EDF Fluid model equilibrium}
+
+	Imposing equilibrium we get:
+
+	\begin{myitem}
+		\item $\tau_{\mu^*}=\tau^*$ becomes a constant.
+		\item The measure $\mu^*$ must satisfy:
+			 \begin{equation*}
+				\frac{\partial f}{\partial \sigma}\ind{\tau<\tau^*}  + \frac{\partial f}{\partial \tau} +\lambda g = 0.
+			\end{equation*}
+		\item Linear PDE that can be easily solved by the method of characteristics.
+	\end{myitem}
+
+
+\end{frame}
+
+\begin{frame}{Solving the EDF transport equation}
+
+	\begin{center}
+	
+	\begin{tikzpicture}
   
 	\shade[inner color=teal,outer color=teal!10!white] (0,0) rectangle (3.9,3.9);
 	\shade[left color=teal!10!white,right color=white] (3.9,0) rectangle (6.9,3.9);
@@ -734,8 +828,279 @@ So the transport fluid equation recovers again the mean measure of the steady-st
   \draw [gray,dashed,<-] (5,0) -- (6.3,1.3) -- (6.3,3.8);
 
   \end{tikzpicture}
+	\end{center}
 
 \end{frame}
+
+\begin{frame}{EDF in overload}{Fluid model equilibrium}
+
+	\begin{theorem}
+    Assume that $\rho > C$ and the equation
+	\begin{equation*}
+		\lambda E[\min\{S,T,\tau^*\}] = C
+	\end{equation*}
+    has a unique solution $\tau^* > 0$. Consider the measure $\mu^*$ given by the following density:
+    \begin{equation*}
+		f(\sigma, \tau) = \lambda\left[\int_0^{\left(\tau^* - \tau\right)^+} g(\sigma + u, \tau + u)du + \int_{\left(\tau^* - \tau\right)^+}^\infty g\left(\sigma + \left(\tau^* - \tau\right)^+, \tau + u\right)du\right]. 
+	\end{equation*}
+
+	This measure is a fluid equilibrium for the EDF policy, and 
+	\begin{equation*}
+	\tau^* = \sup \left\{\tau \geq 0:\mu^*(\R_{++} \times (0, \tau]) \leq C\right\}.
+	\end{equation*}
+	\end{theorem}
+
+\end{frame}
+
+\begin{frame}{EDF performance in equilibrium}
+	
+	\begin{columns}
+		\begin{column}{0.5\textwidth}
+		\begin{itemize}
+		\item Let us compute the rate at which work is \alert{reneged}.
+		
+		\item Compute the rate at which mass exits with $S_r < \sigma_0$.
+		
+		\end{itemize}
+		\end{column}
+		\begin{column}{0.5\textwidth}
+			\begin{tikzpicture}[scale=0.7]
+				
+			\draw [->] (-.2,0) -- (7,0);
+			\node [below right] at (7,0) {$\sigma$};
+			\draw [->] (0,-.2) -- (0,4);
+			\node [above left] at (0,4) {$\tau$};
+			
+%			\node [below] at (3.5,-.1) {Remaining service};
+%			\node [rotate=90, left, anchor=south] at (-.1,2) { Remaining time};
+
+			\draw [gray, dotted, thick] (0,1.5) -- (6.8,1.5) node[black, right] {$\tau_\Phi$};
+
+			\draw[very thick,rojito] (0,1.5) -- (0,0) -- (2,0);
+			\draw[very thick,rojito] (2,.2) -- (2,-.2) node[below]{$\sigma_0$};
+
+			\draw[thick,gray] (2,0) -- (3.5,1.5) -- (3.5,4);
+
+			\draw[thick,gray,->] (1.75,3) -- ++(0,-.9);
+			\draw[thick,gray,->] (1.5,1) -- ++(-.6,-.6);
+
+			\end{tikzpicture}
+		\end{column}
+	\end{columns}
+
+	\begin{proposition}
+    \begin{equation*}
+        \int_0^{\tau^*} f(0, \tau)d\tau + \int_0^{\sigma_0} f(\sigma, 0)d\sigma = \lambda P\left(S - \min\left\{S, T, \tau^*\right\} < \sigma_0\right).
+    \end{equation*}
+
+	\smallskip
+	i.e. $S_a = S-S_r = \min\{S,T,\tau^*\}$.
+	\end{proposition}
+\end{frame}
+
+
+\section{Deadline-oblivious policies}
+
+\begin{frame}{What if we do not know the deadlines?}
+
+	\begin{myitem}
+	\item Deadlines are often hard to estimate in practice.
+	\item Moreover, tasks may under-report their deadline to get priority!
+	\item What about \alert{deadline-oblivious} policies?
+	\begin{itemize}
+		\item Can we model them?
+		\item What is their performance?
+	\end{itemize}
+	\end{myitem}
+	
+	\pause
+	\vfill
+	\alert{Problem:} we need a new state-space...
+\end{frame}
+
+
+\begin{frame}{Attained service state descriptor}
+
+	\begin{columns}
+	\begin{column}{0.45\textwidth}
+		  \begin{tikzpicture}[scale=0.9]
+		
+			\draw [->] (-.2,0) -- (7,0);
+			\node [below right] at (7,0) {$x$};
+			\draw [->] (0,-.2) -- (0,4);
+			\node [above left] at (0,4) {$y$};
+			
+			\node [below] at (3.5,-.1) {Attained service};
+			\node [rotate=90, left, anchor=south] at (-.1,2) {Elapsed time};
+
+			\draw<2> [azulcito, fill=azulcito] (0,0) circle [radius=0.1];
+			\node<2> [azulcito] at (3.5,3.5) {New arrival at rate $\lambda dt$ at $(0,0)$};
+
+			\draw<3> [thick,gray,->] plot[smooth] coordinates {(0,0) (1.8,1) (2,1.5) (3,2)}; 
+			\draw<3> [gray, fill=gray, opacity=0.5] (0,0) circle [radius=0.1];
+			\draw<3> [teal, fill=teal] (3,2) circle [radius=0.1];
+			\draw<3> [teal, fill=teal,->] (3,2) -- (3.5,2) node[right]{$r(x,y)$};
+			\draw<3> [teal, fill=teal,->] (3,2) -- (3,2.5) node[left]{$1$};
+			\node<3> [teal] at (3.5,3.5) {Moves along the field $\mathbf{r} = \begin{pmatrix}
+			r(x,y) \\ 1
+			\end{pmatrix}$};
+
+			\draw<4-> [thick,gray,->] plot[smooth] coordinates {(0,0) (1.8,1) (2,1.5) (3,2) (4.1,2.3)}; 
+			\draw<4-> [gray, fill=gray, opacity=0.5] (0,0) circle [radius=0.1];
+			\node<4-> [purple, fill=purple, starburst, inner sep=1.5pt,/pgf/starburst point height=3] at (4.1,2.3) {};
+			\node<4-> [purple] at (3.5,3.5) {Leaves the system at $(x,y)$};
+			\end{tikzpicture}
+
+	\end{column}
+	\begin{column}{0.55\textwidth}
+		\begin{itemize}
+			\item<1-> Consider the elapsed time space.
+			\item<3-> \alert{Policy} again defines how tasks are served.
+			\item<3-> May depend on any combination of $(x,y)$.
+			\item<5-> State descriptor:
+			 \begin{equation*}
+				\tilde\Phi_t = \sum_i \delta_{x_i(t),y_i(t)}
+			 \end{equation*}
+		\end{itemize}
+	\end{column}
+	\end{columns}
+
+\end{frame}
+
+
+\begin{frame}{Example: Least-Attained-Service policy}
+
+	\begin{columns}
+		\begin{column}{0.45\textwidth}
+		\begin{tikzpicture}[scale=0.9]
+			\draw [->] (-.2,0) -- (7,0);
+			\node [below right] at (7,0) {$x$};
+			\draw [->] (0,-.2) -- (0,4);
+			\node [above left] at (0,4) {$y$};
+			
+			\node [below] at (3.5,-.1) {Attained service};
+			\node [rotate=90, left, anchor=south] at (-.1,2) {Elapsed time};
+			
+			\draw [thick,gray,->] (.5,.8) -- ++(.3,.3);
+			\draw [thick,gray,->] (.7,3.1) -- ++(.3,.3);
+			\draw [thick,gray,->] (1.2,1.5) -- ++(0,.4);
+			\draw [thick,gray,->] (2,2.3) -- ++(0,.4);
+			\draw [thick,gray,->] (2.5,1.3) -- ++(0,.4);
+			\draw [thick,gray,->] (3,3.5) -- ++(0,.4);
+			%\draw [thick,gray,->] (4,2.3) -- ++(.2,.4);
+			\draw [thick,gray,->] (5,1.9) -- ++(0,.4);
+			\draw [thick,gray,->] (6,3) -- ++(0,.4);
+
+			\draw [teal, fill=teal] (.5,.8) circle [radius=0.1];
+			\draw [teal, fill=teal] (.7,3.1) circle [radius=0.1];
+			\draw [teal, fill=teal] (1.2,1.5) circle [radius=0.1];
+			\draw [teal, fill=teal]  (2,2.3) circle [radius=0.1];
+			\draw [teal, fill=teal] (2.5,1.3) circle [radius=0.1];
+			\draw [teal, fill=teal] (3,3.5) circle [radius=0.1];
+			%\draw [teal!50!white, fill=teal!50!white] (4,2.3) starburst  node[teal,above] {\footnotesize Departure};
+			%\node[teal!50!white, fill=teal, starburst, inner sep=1.5pt,/pgf/starburst point height=3] at (4,2.3) {}; 
+			%\node[teal,above, yshift=3pt] at (4,2.3) {\footnotesize Departure};
+			
+			\node[purple, fill=purple, starburst, inner sep=1.5pt,/pgf/starburst point height=3] at (4,2.3) {};
+			\node[purple, above, yshift=3pt] at (4,2.3){ \small Departure};
+			
+			\draw [teal, fill=teal] (5,1.9) circle [radius=0.1];
+			\draw [teal, fill=teal] (6,3) circle [radius=0.1];
+			
+			%new arrival
+
+			\draw [thick,gray,->] (0,0) -- ++(.3,.3);
+			\draw [azulcito, fill=azulcito] (0,0) circle [radius=0.1] node[anchor=south west, xshift=6pt] {\small New arrival};
+			
+			\draw [gray, dotted, thick] (.7,0) -- (.7,3.8) node[black, right] {$x_{\tilde{\Phi}}$};
+	\end{tikzpicture}
+
+	\end{column}
+	\begin{column}{0.55\textwidth}
+		\begin{itemize}
+			\item Serve the $C$ least-served tasks.
+			\item Corresponds to taking:
+				\begin{equation*}
+					r_{\tilde\Phi}(x,y) = \mathbf{1}_{\{x\leqslant x_{\tilde\Phi}\}} 
+				\end{equation*}
+				with
+				\begin{equation*} 
+					x_{\tilde\Phi} := \sup\{x: \tilde\Phi([0, x] \times \R_+) \leqslant C\}. 	
+				\end{equation*} 
+		\end{itemize}
+	\end{column}
+\end{columns}
+
+\end{frame}
+
+
+\begin{frame}{Example: Last-Come-First-Served policy}
+  
+	\begin{columns}
+		\begin{column}{0.45\textwidth}
+			\begin{tikzpicture}[scale=0.9]
+					
+				\draw [->] (-.2,0) -- (7,0);
+				\node [below right] at (7,0) {$x$};
+				\draw [->] (0,-.2) -- (0,4);
+				\node [above left] at (0,4) {$y$};
+				
+				\node [below] at (3.5,-.1) {Attained service};
+				\node [rotate=90, left, anchor=south] at (-.1,2) {Elapsed time};
+				
+				\draw [thick,gray,->] (.5,.8) -- ++(.3,.3);
+				\draw [thick,gray,->] (.7,3.1) -- ++(0,.4);
+				\draw [thick,gray,->] (1.2,1.5) -- ++(0,.4);
+				\draw [thick,gray,->] (2,2.3) -- ++(0,.4);
+				\draw [thick,gray,->] (2.5,1.3) -- ++(.3,.3);
+				\draw [thick,gray,->] (3,3.5) -- ++(0,.4);
+				%\draw [thick,gray,->] (4,2.3) -- ++(.2,.4);
+				\draw [thick,gray,->] (5,1.9) -- ++(0,.4);
+				\draw [thick,gray,->] (6,3) -- ++(0,.4);
+
+				\draw [teal, fill=teal] (.5,.8) circle [radius=0.1];
+				\draw [teal, fill=teal] (.7,3.1) circle [radius=0.1];
+				\draw [teal, fill=teal] (1.2,1.5) circle [radius=0.1];
+				\draw [teal, fill=teal]  (2,2.3) circle [radius=0.1];
+				\draw [teal, fill=teal] (2.5,1.3) circle [radius=0.1];
+				\draw [teal, fill=teal] (3,3.5) circle [radius=0.1];
+				%\draw [teal!50!white, fill=teal!50!white] (4,2.3) starburst  node[teal,above] {\footnotesize Departure};
+				%\node[teal!50!white, fill=teal, starburst, inner sep=1.5pt,/pgf/starburst point height=3] at (4,2.3) {}; 
+				%\node[teal,above, yshift=3pt] at (4,2.3) {\footnotesize Departure};
+				\draw [teal, fill=teal] (5,1.9) circle [radius=0.1];
+				\draw [teal, fill=teal] (6,3) circle [radius=0.1];
+						
+				\node[purple, fill=purple, starburst, inner sep=1.5pt,/pgf/starburst point height=3] at (4,2.3) {};
+				\node[purple, above, yshift=3pt] at (4,2.3){ \small Departure};
+				
+				%new arrival
+
+				\draw [thick,gray,->] (0,0) -- ++(.3,.3);
+				\draw [azulcito, fill=azulcito] (0,0) circle [radius=0.1] node[anchor=south west, xshift=6pt] {\small New arrival};
+				
+				\draw [gray, dotted, thick] (0,1.3) -- (6.8,1.3) node[black, right] {$y_{\tilde{\Phi}}$};
+				\end{tikzpicture}
+		\end{column}
+	\begin{column}{0.55\textwidth}
+		\begin{itemize}
+			\item Serve the $C$ more recent tasks.
+			\item Corresponds to taking:
+				\begin{equation*}
+					r_{\tilde\Phi}(x,y) = \mathbf{1}_{\{y\leqslant y_{\tilde\Phi}\}} 
+				\end{equation*}
+				with
+				\begin{equation*} 
+					y_{\tilde\Phi} := \sup\{y: \tilde\Phi(\R_+\times [0, y]) \leqslant C\}
+				\end{equation*} 
+		\end{itemize}
+	\end{column}
+\end{columns}
+
+\end{frame}
+\begin{frame}{The hazard rate field}
+
+\end{frame}
+
 
 \begin{frame}{Solving the transport equation}{Attained service case}
 
@@ -818,9 +1183,13 @@ So the transport fluid equation recovers again the mean measure of the steady-st
 \section{Simulations}
 
 
-\section{Future work}
+\section{Final remarks}
 
-\begin{frame}{Final remarks}
+\begin{frame}{Messages from the talk}
+	
+\end{frame}
+
+\begin{frame}{Future work}
 	
 \end{frame}
 
