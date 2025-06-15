@@ -1285,16 +1285,91 @@ Looks daunting, but is not that bad...
 
 \section{Simulations}
 
+\begin{frame}
+	\begin{itemize}
+	\item We finally validate our fluid approximation by stochastic simulations
+	\item In order to account for correlations, we take:
+	 \begin{equation*}
+    S = e^U \quad \text{and} \quad T = e^V \quad \text{with} \quad (U, V) \sim \mathcal{N}\left(\begin{pmatrix}
+    0 \\ 0
+    \end{pmatrix}, \begin{pmatrix}
+    1 & 0.9 \\ 0.9 & 1
+    \end{pmatrix}\right).
+\end{equation*}
+    \item In particular, the random variables $U$ and $V$ are correlated with normal distributions, and therefore $S$ and $T$ are correlated with log-normal distributions.
+	\item In this case, $E[\min\{S,T\}] \approx 1.37$ can only be numerically estimated. 
+	\item We choose $\lambda = 200$ and $C=100$, then $z^* \approx 0.593$.
+	\end{itemize}
+	
 
+\end{frame}
+
+\begin{frame}{State space snapshots}
+    
+	\begin{center}
+	\input{figuras/lognormal_edf_statespace.tex}
+    \input{figuras/lognormal_las_statespace.tex}
+    \input{figuras/lognormal_lcfs_statespace.tex}
+    \end{center}
+
+	\vfill
+	Blue dots are in service, red dots are not in service. 
+\end{frame}
+
+\begin{frame}{Stochastic threshold evolution}
+	\begin{center}
+	\input{figuras/lognormal_edf_threshold.tex}
+    \input{figuras/lognormal_las_threshold.tex}
+    \input{figuras/lognormal_lcfs_threshold.tex}    
+	\end{center}
+
+\end{frame}
+
+\begin{frame}{Attained work empirical CDF}
+
+	\begin{center}
+    \input{figuras/lognormal_attained_comparison.tex}
+    \end{center}
+    
+	\vfill
+
+	Even in the pre-limit system, performance is similar!
+\end{frame}
+
+\begin{frame}{Comparison with FIFO}
+
+	\begin{center}
+	\input{figuras/lognormal_fifo_bad.tex}
+	\end{center}
+
+	\vfill
+
+	Almost 80\% of the jobs leave without service.
+\end{frame}
 
 \section{Final remarks}
 
 \begin{frame}{Messages from the talk}
 	
+	\begin{myitem}
+		\item Measure-valued processes are a powerful tool to model general service queues.
+		\item Partial service queues require two-dimensional measures.
+		\item Our proposed dynamics for fluid models are tractable and approximate the real system.
+		\item Last-but-not-least: in this setting, \alert{deadline-oblivious} policies can be used without performance penalty!
+	\end{myitem}
 \end{frame}
 
 \begin{frame}{Future work}
 	
+	\begin{myitem}
+		\item Analyze further policies using these tools (FCFS is easy for instance).
+		\item Establish process-level convergence to the fluid models (long work...help needed...)
+		\item Devise new policies and/or analyze different settings:
+		
+		\begin{itemize}
+			\item Tasks stay until service completion, but we want to measure the average \emph{tardiness}, i.e. how late they depart.
+		\end{itemize}
+	\end{myitem}
 \end{frame}
 
 
