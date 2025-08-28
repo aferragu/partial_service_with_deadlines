@@ -114,8 +114,8 @@
 \subtitle{A story of three policies}
 
 \author[Andres Ferragut, Universidad ORT Uruguay]{Andres Ferragut}
-\institute{Joint work with Diego Goldsztajn and Fernando Paganini\\ \smallskip Universidad ORT Uruguay}
-\date[INRIA MATHNET Seminar -- Jun 2025]{INRIA MATHNET Seminar -- June 2025}
+\institute{con Diego Goldsztajn y Fernando Paganini}
+\date[Seminario de Probabilidad y Estadística -- Agosto 2025]{Seminario de Probabilidad y Estadística -- Agosto 2025}
 
 \AtBeginSection[]
 {
@@ -560,7 +560,7 @@ So the transport fluid equation recovers again the mean measure of the steady-st
 
 	\begin{myitem}
 		
-	\item Before proceeding, it is useful to define the \alert{system laod}:
+	\item Before proceeding, it is useful to define the \alert{system load}:
 
 	\begin{equation*}
 		\rho:= \lambda E[\min\{S,T\}].
@@ -629,7 +629,7 @@ So the transport fluid equation recovers again the mean measure of the steady-st
 			\item<3-> May depend on any combination of $(\sigma,\tau)$.
 			\item<5-> State descriptor:
 			 \begin{equation*}
-				\Phi_t = \sum_i \delta_{\sigma_i(t),\tau_i(t)}
+				\Phi_t = \sum_i \delta_{\left(\sigma_i(t),\tau_i(t)\right)}
 			 \end{equation*}
 		\end{itemize}
 	\end{column}
@@ -959,7 +959,7 @@ Looks daunting, but is not that bad...
 			\item<3-> May depend on any combination of $(x,y)$.
 			\item<5-> State descriptor:
 			 \begin{equation*}
-				\tilde\Phi_t = \sum_i \delta_{x_i(t),y_i(t)}
+				\tilde\Phi_t = \sum_i \delta_{\left(x_i(t),y_i(t)\right)}
 			 \end{equation*}
 		\end{itemize}
 	\end{column}
@@ -1114,7 +1114,7 @@ Looks daunting, but is not that bad...
 		\end{equation*}
 		\begin{itemize}
 			\item $h^x (x,y) = P(S\in[x,x+dx],T>S \mid S>x,T>y)$
-			\item $h^x (x,y) = P(T\in[y,y+dy],S>T \mid S>x,T>y)$
+			\item $h^y (x,y) = P(T\in[y,y+dy],S>T \mid S>x,T>y)$
 		\end{itemize}
 	\end{definition}
 
@@ -1144,7 +1144,7 @@ Looks daunting, but is not that bad...
 
 \begin{frame}{Departure rate}
 
-	Now we have to compute the departure rate $\eta_nu(x,y)$:
+	Now we have to compute the departure rate $\eta_{\nu}(x,y)$:
 	\begin{equation*}
 		\eta_\nu(x,y) := \lim_{dt\to 0} \frac{1}{dt} P\left(\left\{S\in\left(x,x+r_{\tilde\Phi}dt\right)\right\}\cup \left\{T\in\left(y,y+dt\right)\right\}\mid S>x,T>y\right)
 	\end{equation*}
@@ -1376,7 +1376,7 @@ Looks daunting, but is not that bad...
 
 \begin{frame}[plain]
 	\vfill
-	{\Huge \alert{Merci beaucoup!}}
+	{\Huge \alert{Gracias!}}
 	\vfill
 	Andres Ferragut
 
